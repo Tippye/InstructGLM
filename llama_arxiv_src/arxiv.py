@@ -44,7 +44,7 @@ def parse(path):
     
 
 class Arxiv_Dataset(Dataset):
-    def __init__(self, all_tasks, task_list, tokenizer, args, sample_numbers, mode='train', split='', rating_augment=False, sample_type='random'): 
+    def __init__(self, all_tasks, task_list, tokenizer, args, sample_numbers, mode='train', split='', rating_augment=False, sample_type='random', data_dir='Arxiv'):
         self.all_tasks = all_tasks   # all instruction prompts
         self.task_list = task_list
         self.tokenizer = tokenizer
@@ -61,17 +61,17 @@ class Arxiv_Dataset(Dataset):
         self.prefix_1='Perform link prediction for the central node: node represents academic paper with a specific topic, link represents a citation between the two papers. Pay attention to the multi-hop link relationship between the nodes. '
         
         prefix=' Node represents academic paper with a specific topic, link represents a citation between the two papers. Pay attention to the multi-hop link relationship between the nodes. '
-        self.label_map=load_pickle(os.path.join('Arxiv','label_map.pkl'))  #1  Map node IDs to category text.
-        self.re_id=load_pickle(os.path.join('Arxiv','Llama_re_id.pkl'))  #2 Map node IDs to new index IDs in the extended LLM vocabulary.
-        self.llama_embed=load_pickle(os.path.join('Arxiv','Llama_embeds.pkl')) #3 The words embedding of Llama-7b, which is freezed during LoRA Tuning. 
+        self.label_map=load_pickle(os.path.join(data_dir,'label_map.pkl'))  #1  Map node IDs to category text.
+        self.re_id=load_pickle(os.path.join(data_dir,'Llama_re_id.pkl'))  #2 Map node IDs to new index IDs in the extended LLM vocabulary.
+        self.llama_embed=load_pickle(os.path.join(data_dir,'Llama_embeds.pkl')) #3 The words embedding of Llama-7b, which is freezed during LoRA Tuning.
         self.l_max=2048 # It can be adjusted if CUDA Out of Memory
-        self.real_feature=load_pickle(os.path.join('Arxiv','Llama_giant.pkl')) #4 Numerical GIANT Node Feature Embedding, dim=768
-        #self.real_feature=load_pickle(os.path.join('Arxiv','Llama_real_feature.pkl')) #4 Numerical OGB Node Feature Embedding, dim=128
-        self.train_L1=load_pickle(os.path.join('Arxiv','L1.pkl'))  
+        self.real_feature=load_pickle(os.path.join(data_dir,'Llama_giant.pkl')) #4 Numerical GIANT Node Feature Embedding, dim=768
+        #self.real_feature=load_pickle(os.path.join(data_dir,'Llama_real_feature.pkl')) #4 Numerical OGB Node Feature Embedding, dim=128
+        self.train_L1=load_pickle(os.path.join(data_dir,'L1.pkl'))
         #5 1-hop Neighbor list for every node, we don't generate and keep corresponding 2/3-hop neighbor lists in advance for efficiency.
-        self.transductive=load_pickle(os.path.join('Arxiv','transductive.pkl'))  #6 a list, store test (transductive.pkl)/ val (val.pkl) node ID
-        self.classification=load_pickle(os.path.join('Arxiv','classification.pkl'))  #7 store train node ID
-        self.node_feature=load_pickle(os.path.join('Arxiv','full_Llama_node_feature.pkl'))  #8 store nodes' raw text feature(e.g. title/ abstract)
+        self.transductive=load_pickle(os.path.join(data_dir,'transductive.pkl'))  #6 a list, store test (transductive.pkl)/ val (val.pkl) node ID
+        self.classification=load_pickle(os.path.join(data_dir,'classification.pkl'))  #7 store train node ID
+        self.node_feature=load_pickle(os.path.join(data_dir,'full_Llama_node_feature.pkl'))  #8 store nodes' raw text feature(e.g. title/ abstract)
 
         LA=[]
         LAA=list(set(self.label_map.values()))
